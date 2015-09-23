@@ -15,7 +15,7 @@ if(storage.getItem('blockedDays'))
 }
 else
 {
-    var blockedDays = [1]["2015-09-23"][2];
+    var blockedDays = [];
 }
 
 //Die Übersicht
@@ -44,7 +44,7 @@ app.post('/blockieren/pruefen/', function(req, res) {
     while(start < end){
         console.log(blockedDays);
         var starts = start.toString();
-        if(blockedDays != undefined && blockedDays[dev][starts]<4)
+        if(blockedDays[dev] != undefined && blockedDays[dev][starts]<4)
         {
             console.log("InIf");
             var available = 4 - blockedDays[dev][starts];
@@ -61,8 +61,13 @@ app.post('/blockieren/pruefen/', function(req, res) {
         else
         {
           result[start] = 4; 
+          blocks = blocks-6;
         } 
-        if(blocks>0) res.send("Leider sind nicht genügend freie Blöcke verfügbar");
+        if(blocks>0)
+        {
+            res.send("Leider sind nicht genügend freie Blöcke verfügbar");
+            res.redirect('/?msg=problem');
+        }
         else 
         {
             res.send("Es sind genügend Blöche frei");
@@ -71,6 +76,8 @@ app.post('/blockieren/pruefen/', function(req, res) {
                 blockedDays[dev][key] = result[key];
             }
             storage.setitem('blockedDays',blockedDays);
+            res.redirect('/?msg=success');
+            console.log(blockedDays);
         }
         var newDate = start.setDate(start.getDate() + 1);
         start = new Date(newDate);
@@ -85,4 +92,3 @@ var server = app.listen(3000, function () {
 
   console.log('Die Webanwendung "Workload-Manager" wird gestartet...', host, port);
 });
-
