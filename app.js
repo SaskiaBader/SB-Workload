@@ -1,3 +1,4 @@
+
 var express = require('express');
 var bodyParser = require("body-parser");
 var storage = require('node-persist');
@@ -42,11 +43,12 @@ app.post('/blockieren/pruefen/', function(req, res) {
     
     //Für jeden Tag in der Zeitspanne prüfen, ob noch Blöcke frei sind
     while(start < end){
-        console.log(blockedDays);
-        var starts = start.toString();
+        var starts = start.getMonth() + "-" + start.getDate() + "-" + start.getFullYear();
+        
+        blockedDays[dev] = [];
+
         if(blockedDays[dev] != undefined && blockedDays[dev][starts]<4)
         {
-            console.log("InIf");
             var available = 4 - blockedDays[dev][starts];
             if(blocks>0)
             {
@@ -61,12 +63,11 @@ app.post('/blockieren/pruefen/', function(req, res) {
         else
         {
           result[start] = 4; 
-          blocks = blocks-6;
+          blocks = blocks-4;
         } 
         if(blocks>0)
         {
             res.send("Leider sind nicht genügend freie Blöcke verfügbar");
-            res.redirect('/?msg=problem');
         }
         else 
         {
@@ -75,8 +76,7 @@ app.post('/blockieren/pruefen/', function(req, res) {
             for (var key in result) {
                 blockedDays[dev][key] = result[key];
             }
-            storage.setitem('blockedDays',blockedDays);
-            res.redirect('/?msg=success');
+            storage.setItem('blockedDays',blockedDays);
             console.log(blockedDays);
         }
         var newDate = start.setDate(start.getDate() + 1);
@@ -92,3 +92,4 @@ var server = app.listen(3000, function () {
 
   console.log('Die Webanwendung "Workload-Manager" wird gestartet...', host, port);
 });
+
